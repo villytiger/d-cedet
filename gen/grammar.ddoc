@@ -1,0 +1,31 @@
+SPEC_S = $+
+
+GRAMMAR=
+GRAMMAR_BEGIN
+$0
+GRAMMAR_END
+
+GNAME = $0
+D = $0
+B = $0
+I = $0
+U = $0
+
+RPAREN = )
+LPAREN = (
+
+SUB=<sub>$0</sub>
+OPT = _opt
+ASSIGNEXPRESSION = AssignExpression
+CODE_AMP = &
+
+LINK = $0
+LINK2 = $+
+LNAME2 = $+
+GLINK = $0
+GLINK2 = $+
+RELATIVE_LINK2 = $+
+XLINK2 = $+
+DDSUBLINK = $3
+
+MULTICOLS = $+
