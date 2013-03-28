@@ -8,5 +8,5 @@ cd $1
 dmd -o- -c -D $DOCS "$dir/grammar.ddoc" -Dd"$dir/grammar"
 
 cd "$dir/grammar"
-cat ${DOCS//.dd/.html} >../grammar.txt
+cat ${DOCS//.dd/.html} | ../gen.py >../grammar.txt
 cd ..

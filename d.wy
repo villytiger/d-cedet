@@ -24,39 +24,2300 @@
 
 %languagemode d-mode
 
-%start module
+%start Module
+
+;; -----------------------------
+;; Block & Parenthesis terminals
+;; -----------------------------
+%type  <block>       ;;syntax "\\s(\\|\\s)" matchdatatype block
+
+%token <block>       PAREN_BLOCK "(LPAREN RPAREN)"
+%token <block>       BRACE_BLOCK "(LBRACE RBRACE)"
+%token <block>       BRACK_BLOCK "(LBRACK RBRACK)"
+
+%token <open-paren>  LPAREN      "("
+%token <close-paren> RPAREN      ")"
+%token <open-paren>  LBRACE      "{"
+%token <close-paren> RBRACE      "}"
+%token <open-paren>  LBRACK      "["
+%token <close-paren> RBRACK      "]"
+
+;; ------------------
+;; Operator terminals
+;; ------------------
+
+%type  <punctuation> ;; syntax "\\(\\s.\\|\\s$\\|\\s'\\_+" matchdatatype string
+
+%token <punctuation> NOT         "!"
+%token <punctuation> NOTEQ       "!="
+%token <punctuation> NOTSTRANGE  "!<>"
+%token <punctuation> NOTSTRANGEEQ "!<>="
+%token <punctuation> NOTLT       "!<"
+%token <punctuation> NOTLT       "!<="
+%token <punctuation> NOTGT       "!>"
+%token <punctuation> NOTGTEQ     "!>="
+%token <punctuation> MOD         "%"
+%token <punctuation> MODEQ       "%="
+%token <punctuation> AND         "&"
+%token <punctuation> ANDAND      "&&"
+%token <punctuation> ANDEQ       "&="
+%token <punctuation> MULT        "*"
+%token <punctuation> MULTEQ      "*="
+%token <punctuation> PLUS        "+"
+%token <punctuation> PLUSPLUS    "++"
+%token <punctuation> PLUSEQ      "+="
+%token <punctuation> COMMA       ","
+%token <punctuation> MINUS       "-"
+%token <punctuation> MINUSMINUS  "--"
+%token <punctuation> MINUSEQ     "-="
+%token <punctuation> DOT         "."
+%token <punctuation> DIV         "/"
+%token <punctuation> DIVEQ       "/="
+%token <punctuation> COLON       ":"
+%token <punctuation> SEMICOLON   ";"
+%token <punctuation> LT          "<"
+%token <punctuation> LSHIFT      "<<"
+%token <punctuation> LSHIFTEQ    "<<="
+%token <punctuation> LTEQ        "<="
+%token <punctuation> EQ          "="
+%token <punctuation> EQEQ        "=="
+%token <punctuation> GT          ">"
+%token <punctuation> GTEQ        ">="
+%token <punctuation> RSHIFT      ">>"
+%token <punctuation> RSHIFTEQ    ">>="
+%token <punctuation> URSHIFT     ">>>"
+%token <punctuation> URSHIFTEQ   ">>>="
+%token <punctuation> STRANGE     "<>"
+%token <punctuation> STRANGEEQ   "<>="
+%token <punctuation> QUESTION    "?"
+%token <punctuation> XOR         "^"
+%token <punctuation> XOREQ       "^="
+%token <punctuation> POW         "^^"
+%token <punctuation> POWEQ       "^^="
+%token <punctuation> OR          "|"
+%token <punctuation> OREQ        "|="
+%token <punctuation> OROR        "||"
+%token <punctuation> COMP        "~"
+%token <punctuation> COMPEQ      "~="
+%token <punctuation> RANGE       ".."
+%token <punctuation> ELLIPSIS    "..."
+%token <punctuation> AT          "@"
+%token <punctuation> DOLLAR      "$"
+%token <punctuation> AT          "@"
+%token <punctuation> NUMBER      "#"
+%token <punctuation> EQGT        "=>"
+
+;; -----------------
+;; Literal terminals
+;; -----------------
+%type  <symbol>      ;;syntax "\\(\\sw\\|\\s_\\)+"
+%token <symbol>      IDENTIFIER
+
+%type  <string>      ;;syntax "\\s\"" matchdatatype sexp
+%token <string>      STRING_LITERAL
+
+%type  <number>      ;;syntax semantic-lex-number-expression
+%token <number>      NUMBER_LITERAL
+
+;; -----------------
+;; Keyword terminals
+;; -----------------
+;; Generate a keyword analyzer
+%type  <keyword> ;;syntax "\\(\\sw\\|\\s_\\)+" matchdatatype keyword
+
+%keyword ABSTRACT     "abstract"
+%put     ABSTRACT summary
+"Class|Method declaration modifier: abstract {class|<type>} <name> ..."
+
+%keyword ALIAS        "alias"
+%put     ALIAS summary
+"alias {class|<type>} <name> ;"
+
+%keyword ALIGN        "align"
+%put     ALIGN summary
+"align {<integer>|<identifier>} ..."
+
+%keyword ASM          "asm"
+%put     ASM summary
+"asm {<asm-instrns>}"
+
+%keyword ASSERT       "assert"
+%put     ASSERT summary
+"Assertion statement: assert (<assign-expr> [,<expr> ...])"
+
+%keyword AUTO         "auto"
+
+%keyword BODY         "body"
+%put     BODY summary
+"body { ... }"
+
+%keyword BOOL         "bool"
+%put     BOOL summary
+"Primitive logical quantity type (true or false)"
+
+%keyword BREAK        "break"
+%put     BREAK summary
+"break [<label>] ;"
+
+%keyword BYTE         "byte"
+%put     BYTE summary
+"Integral primitive type (-128 to 127)"
+
+%keyword CASE         "case"
+%put     CASE summary
+"switch(<expr>) {case <const-expr>: <stmts> ... }"
+
+%keyword CAST         "cast"
+%put     CAST summary
+"cast ({class|interface|struct|<type>}) <unary-expression>"
+
+%keyword CATCH        "catch"
+%put     CATCH summary
+"try {<stmts>} catch(<parm>) {<stmts>} ... "
+
+%keyword CDOUBLE      "cdouble"
+%put     CDOUBLE summary
+"Complex number double.nan+double.nan*1.0i"
+
+%keyword CENT         "cent"
+
+%keyword CFLOAT       "cfloat"
+
+%keyword CHAR         "char"
+%put     CHAR summary
+"Unsigned 8 bit UTF-8"
+
+%keyword CLASS        "class"
+%put     CLASS summary
+"Class declaration: class <name>"
+
+%keyword CONST        "const"
+
+%keyword CONTINUE     "continue"
+%put     CONTINUE summary
+"continue [<label>] ;"
+
+%keyword CREAL        "creal"
+
+%keyword DCHAR        "dchar"
+
+%keyword DEBUG        "debug"
+
+%keyword DEFAULT      "default"
+%put     DEFAULT summary
+"switch(<expr>) { ... default: <stmts>}"
+
+%keyword DELEGATE     "delegate"
+
+%keyword DELETE       "delete"
+%put     DELETE summary
+"Deprecated"
+
+%keyword DEPRECATED   "deprecated"
+
+%keyword DO           "do"
+%put     DO summary
+"do <stmt> while (<expr>);"
+
+%keyword DOUBLE       "double"
+%put     DOUBLE summary
+"Primitive floating-point type (double-precision 64-bit IEEE 754)"
+
+%keyword ELSE         "else"
+%put     ELSE summary
+"if (<expr>) <stmt> else <stmt>"
+
+%keyword ENUM         "enum"
+%put     ENUM summary
+"Enum declaration"
+
+%keyword EXPORT       "export"
+
+%keyword EXTERN       "extern"
+
+%keyword FALSE        "false"
+
+%keyword FINAL        "final"
+%put     FINAL summary
+"Class|Member declaration modifier: final {class|<type>} <name> ..."
+
+%keyword FINALLY      "finally"
+%put     FINALLY summary
+"try {<stmts>} ... finally {<stmts>}"
+
+%keyword FLOAT        "float"
+%put     FLOAT summary
+"Primitive floating-point type (single-precision 32-bit IEEE 754)"
+
+%keyword FOR          "for"
+%put     FOR summary
+"for ([<init-expr>]; [<expr>]; [<update-expr>]) <stmt>"
+
+%keyword FOREACH      "foreach"
+
+%keyword FOREACH_REVERSE "foreach_reverse"
+
+%keyword FUNCTION     "function"
+
+%keyword GOTO         "goto"
+
+%keyword IF           "if"
+%put     IF summary
+"if (<expr>) <stmt> [else <stmt>]"
+
+%keyword IFLOAT       "ifloat"
+
+%keyword IMMUTABLE    "immutable"
+
+%keyword IMPORT       "import"
+%put     IMPORT summary
+"Import package declarations: import <package>"
+
+%keyword IN           "in"
+
+%keyword INOUT        "inout"
+
+%keyword INT          "int"
+%put     INT summary
+"Integral primitive type (-2147483648 to 2147483647)"
+
+%keyword INTERFACE    "interface"
+%put     INTERFACE summary
+"Interface declaration: interface <name>"
+
+%keyword INVARIANT    "invariant"
+
+%keyword IREAL        "ireal"
+
+%keyword IS           "is"
+
+%keyword LAZY           "lazy"
+
+%keyword LONG         "long"
+%put     LONG summary
+"Integral primitive type (-9223372036854775808 to 9223372036854775807)"
+
+%keyword MACRO        "macro"
+%put     MACRO summary
+"Reserved, unused"
+
+%keyword MIXIN        "mixin"
+
+%keyword MODULE       "module"
+
+%keyword NEW          "new"
+
+%keyword NOTHROW      "nothrow"
+
+%keyword NULL         "null"
+
+%keyword OUT          "out"
+
+%keyword OVERRIDE     "override"
+
+%keyword PACKAGE      "package"
+%put     PACKAGE summary
+"Package declaration: package <name>"
+
+%keyword PRAGMA       "pragma"
+
+%keyword PRIVATE      "private"
+%put     PRIVATE summary
+"Access level modifier: private {class|interface|<type>} <name> ..."
+
+%keyword PROTECTED    "protected"
+%put     PROTECTED summary
+"Access level modifier: protected {class|interface|<type>} <name> ..."
+
+%keyword PUBLIC       "public"
+%put     PUBLIC summary
+"Access level modifier: public {class|interface|<type>} <name> ..."
+
+%keyword PURE         "pure"
+
+%keyword REAL         "real"
+
+%keyword REF          "ref"
+
+%keyword RETURN       "return"
+%put     RETURN summary
+"return [<expr>] ;"
+
+%keyword SCOPE        "scope"
+
+%keyword SHARED       "shared"
+
+%keyword SHORT        "short"
+%put     SHORT summary
+"Integral primitive type (-32768 to 32767)"
+
+%keyword STATIC       "static"
+%put     STATIC summary
+"Declaration modifier: static {class|interface|<type>} <name> ..."
+
+%keyword STRUCT       "struct"
+
+%keyword SUPER        "super"
+
+%keyword SWITCH       "switch"
+%put     SWITCH summary
+"switch(<expr>) {[case <const-expr>: <stmts> ...] [default: <stmts>]}"
+
+%keyword SYNCHRONIZED "synchronized"
+%put     SYNCHRONIZED summary
+"synchronized (<expr>) ... | Method decl. modifier: synchronized <type> <name> ..."
+
+%keyword TEMPLATE     "template"
+
+%keyword THIS         "this"
+
+%keyword THROW        "throw"
+%put     THROW summary
+"throw <expr> ;"
+
+%keyword TRUE         "true"
+
+%keyword TRY          "try"
+%put     TRY summary
+"try {<stmts>} [catch(<parm>) {<stmts>} ...] [finally {<stmts>}]"
+
+%keyword TYPEDEF      "typedef"
+%put     TYPEDEF summary
+"Deprecated"
+
+%keyword TYPEID       "typeid"
+
+%keyword TYPEOF       "typeof"
+
+%keyword UBYTE        "ubyte"
+
+%keyword UCENT        "ucent"
+
+%keyword UINT         "uint"
+
+%keyword ULONG        "ulong"
+
+%keyword UNION        "union"
+
+%keyword UNITTEST     "unittest"
+
+%keyword USHORT       "ushort"
+
+%keyword VERSION      "version"
+
+%keyword VOID         "void"
+%put     VOID summary
+"Method return type: void <name> ..."
+
+%keyword VOLATILE     "volatile"
+%put     VOLATILE summary
+"Field declaration modifier: volatile <type> <name> ..."
+
+%keyword WCHAR        "wchar"
+
+%keyword WHILE        "while"
+%put     WHILE summary
+"while (<expr>) <stmt> | do <stmt> while (<expr>);"
+
+%keyword WITH         "with"
+
+%keyword __FILE__     "__FILE__"
+
+%keyword __MODULE__   "__MODULE__"
+
+%keyword __LINE__     "__LINE__"
+
+%keyword __FUNCTION__ "__FUNCTION__"
+
+%keyword __PRETTY_FUNCTION__ "__PRETTY_FUNCTION__"
+
+%keyword __GSHARED    "__gshared"
+
+%keyword __TRAITS     "__traits"
+
+%keyword __VECTOR     "__vector"
+
+%keyword __PARAMETERS "__parameters"
 
 %%
 
+;; ------------
+;; LALR grammar
+;; ------------
+
 Module
-  : ModuleDeclaration DeclDefs
-  | DeclDefs
+  | ModuleDeclaration DeclDefs
+  : DeclDefs
+  ;
 
 DeclDefs
-  : DeclDef
-  | DeclDef DeclDefs
+  | DeclDef
+  : DeclDef DeclDefs
+  ;
 
 DeclDef
-  : AttributeSpecifier
-  | ImportDeclaration
-  | EnumDeclaration
-  | ClassDeclaration
-  | InterfaceDeclaration
-  | AggregateDeclaration
-  | Declaration
-  | Constructor
-  | Destructor
-  | UnitTest
-  | StaticConstructor
-  | StaticDestructor
-  | SharedStaticConstructor
-  | SharedStaticDestructor
-  | ConditionalDeclaration
-  | DebugSpecification
-  | VersionSpecification
-  | StaticAssert
-  | TemplateDeclaration
-  | TemplateMixinDeclaration
-  | TemplateMixin
-  | MixinDeclaration
+  | AttributeSpecifier
+  : ImportDeclaration
+  : EnumDeclaration
+  : ClassDeclaration
+  : InterfaceDeclaration
+  : AggregateDeclaration
+  : Declaration
+  : Constructor
+  : Destructor
+  : UnitTest
+  : StaticConstructor
+  : StaticDestructor
+  : SharedStaticConstructor
+  : SharedStaticDestructor
+  : ConditionalDeclaration
+  : DebugSpecification
+  : VersionSpecification
+  : StaticAssert
+  : TemplateDeclaration
+  : TemplateMixinDeclaration
+  : TemplateMixin
+  : MixinDeclaration
+  : SEMICOLON
   ;
+
+ModuleDeclaration
+  | MODULE ModuleFullyQualifiedName SEMICOLON
+  ;
+
+ModuleFullyQualifiedName
+  | ModuleName
+  : Packages DOT ModuleName
+  ;
+
+ModuleName
+  | Identifier
+  ;
+
+Packages
+  | PackageName
+  : Packages DOT PackageName
+  ;
+
+PackageName
+  | Identifier
+  ;
+
+ImportDeclaration
+  | IMPORT ImportList SEMICOLON
+  : STATIC IMPORT ImportList SEMICOLON
+  ;
+
+ImportList
+  | Import
+  : ImportBindings
+  : Import COMMA ImportList
+  ;
+
+Import
+  | ModuleFullyQualifiedName
+  : ModuleAliasIdentifier EQ ModuleFullyQualifiedName
+  ;
+
+ImportBindings
+  | Import COLON ImportBindList
+  ;
+
+ImportBindList
+  | ImportBind
+  : ImportBind COMMA ImportBindList
+  ;
+
+ImportBind
+  | Identifier
+  : Identifier EQ Identifier
+  ;
+
+ModuleAliasIdentifier
+  | Identifier
+  ;
+
+MixinDeclaration
+  | MIXIN LPAREN AssignExpression RPAREN SEMICOLON
+  ;
+
+Declaration
+  | AliasDeclaration
+  : AliasThisDeclaration
+  : Decl
+  ;
+
+AliasDeclaration
+  | ALIAS BasicType Declarator
+  : ALIAS AliasInitializerList
+  ;
+
+AliasInitializerList
+  | AliasInitializer
+  : AliasInitializer COMMA AliasInitializerList
+  ;
+
+AliasInitializer
+  | Identifier EQ Type
+  ;
+
+AliasThisDeclaration
+  | ALIAS Identifier THIS
+  ;
+
+Decl
+  | StorageClasses Decl
+  : BasicType Declarators SEMICOLON
+  : BasicType Declarator FunctionBody
+  : AutoDeclaration
+  ;
+
+Declarators
+  | DeclaratorInitializer
+  : DeclaratorInitializer COMMA DeclaratorIdentifierList
+  ;
+
+DeclaratorInitializer
+  | Declarator
+  : Declarator EQ Initializer
+  ;
+
+DeclaratorIdentifierList
+  | DeclaratorIdentifier
+  : DeclaratorIdentifier COMMA DeclaratorIdentifierList
+  ;
+
+DeclaratorIdentifier
+  | Identifier
+  : Identifier EQ Initializer
+  ;
+
+BasicType
+  | BasicTypeX
+  : DOT IdentifierList
+  : IdentifierList
+  : Typeof
+  : Typeof DOT IdentifierList
+  : CONST LPAREN Type RPAREN 
+  : IMMUTABLE LPAREN Type RPAREN 
+  : SHARED LPAREN Type RPAREN 
+  : INOUT LPAREN Type RPAREN 
+  ;
+
+BasicTypeX
+  | BOOL
+  : BYTE
+  : UBYTE
+  : SHORT
+  : USHORT
+  : INT
+  : UINT
+  : LONG
+  : ULONG
+  : CHAR
+  : WCHAR
+  : DCHAR
+  : FLOAT
+  : DOUBLE
+  : REAL
+  : IFLOAT
+  : idouble
+  : IREAL
+  : CFLOAT
+  : CDOUBLE
+  : CREAL
+  : VOID
+  ;
+
+BasicType2
+  | MULT
+  : LBRACK RBRACK
+  : LBRACK AssignExpression RBRACK
+  : LBRACK AssignExpression RANGE AssignExpression RBRACK
+  : LBRACK Type RBRACK
+  : DELEGATE Parameters 
+  : DELEGATE Parameters MemberFunctionAttributes
+  : FUNCTION Parameters 
+  : FUNCTION Parameters FunctionAttributes
+  ;
+
+Declarator
+  | LPAREN Declarator RPAREN 
+  : LPAREN Declarator RPAREN DeclaratorSuffixes
+  : BasicType2 LPAREN Declarator RPAREN 
+  : BasicType2 LPAREN Declarator RPAREN DeclaratorSuffixes
+  : Identifier 
+  : Identifier DeclaratorSuffixes
+  : BasicType2 Identifier 
+  : BasicType2 Identifier DeclaratorSuffixes
+  ;
+
+DeclaratorSuffixes
+  | DeclaratorSuffix
+  : DeclaratorSuffix DeclaratorSuffixes
+  ;
+
+DeclaratorSuffix
+  | LBRACK RBRACK
+  : LBRACK AssignExpression RBRACK
+  : LBRACK Type RBRACK
+  : Parameters 
+  : Parameters Constraint
+  : Parameters MemberFunctionAttributes 
+  : Parameters MemberFunctionAttributes Constraint
+  : TemplateParameters Parameters 
+  : TemplateParameters Parameters Constraint
+  : TemplateParameters Parameters MemberFunctionAttributes 
+  : TemplateParameters Parameters MemberFunctionAttributes Constraint
+  ;
+
+IdentifierList
+  | Identifier
+  : Identifier DOT IdentifierList
+  : TemplateInstance
+  : TemplateInstance DOT IdentifierList
+  ;
+
+StorageClasses
+  | StorageClass
+  : StorageClass StorageClasses
+  ;
+
+StorageClass
+  | ABSTRACT
+  : AUTO
+  : TypeCtor
+  : DEPRECATED
+  : ENUM
+  : EXTERN
+  : FINAL
+  : NOTHROW
+  : OVERRIDE
+  : PURE
+  : __GSHARED
+  : Property
+  : SCOPE
+  : STATIC
+  : SYNCHRONIZED
+  ;
+
+Property
+  | AT PropertyIdentifier
+  ;
+
+PropertyIdentifier
+  | property
+  : safe
+  : trusted
+  : system
+  : disable
+  ;
+
+TypeCtors
+  | TypeCtor
+  : TypeCtor TypeCtors
+  ;
+
+TypeCtor
+  | CONST
+  : IMMUTABLE
+  : INOUT
+  : SHARED
+  ;
+
+Type
+  | BasicType
+  : TypeCtors BasicType
+  : BasicType Declarator2
+  : TypeCtors BasicType Declarator2
+  ;
+
+Declarator2
+  | 
+  : DeclaratorSuffixes
+  : BasicType2 
+  : BasicType2 DeclaratorSuffixes
+  : LPAREN Declarator2 RPAREN 
+  : LPAREN Declarator2 RPAREN DeclaratorSuffixes
+  : BasicType2 LPAREN Declarator2 RPAREN 
+  : BasicType2 LPAREN Declarator2 RPAREN DeclaratorSuffixes
+  ;
+
+Parameters
+  | LPAREN ParameterList RPAREN 
+  : LPAREN RPAREN 
+  ;
+
+ParameterList
+  | Parameter
+  : Parameter COMMA ParameterList
+  : ELLIPSIS
+  ;
+
+Parameter
+  | BasicType Declarator
+  : InOut BasicType Declarator
+  : BasicType Declarator ELLIPSIS
+  : InOut BasicType Declarator ELLIPSIS
+  : BasicType Declarator EQ DefaultInitializerExpression
+  : InOut BasicType Declarator EQ DefaultInitializerExpression
+  : Type
+  : InOut Type
+  : Type ELLIPSIS
+  : InOut Type ELLIPSIS
+  ;
+
+InOut
+  | InOutX
+  : InOut InOutX
+  ;
+
+InOutX
+  | AUTO
+  : TypeCtor
+  : FINAL
+  : IN
+  : LAZY
+  : OUT
+  : REF
+  : SCOPE
+  ;
+
+FunctionAttributes
+  | FunctionAttribute
+  : FunctionAttribute FunctionAttributes
+  ;
+
+FunctionAttribute
+  | NOTHROW
+  : PURE
+  : Property
+  ;
+
+MemberFunctionAttributes
+  | MemberFunctionAttribute
+  : MemberFunctionAttribute MemberFunctionAttributes
+  ;
+
+MemberFunctionAttribute
+  | CONST
+  : IMMUTABLE
+  : INOUT
+  : SHARED
+  : FunctionAttribute
+  ;
+
+DefaultInitializerExpression
+  | AssignExpression
+  : __FILE__
+  : __MODULE__
+  : __LINE__
+  : __FUNCTION__
+  : __PRETTY_FUNCTION__
+  ;
+
+Initializer
+  | VoidInitializer
+  : NonVoidInitializer
+  ;
+
+NonVoidInitializer
+  | AssignExpression
+  : ArrayInitializer
+  : StructInitializer
+  ;
+
+ArrayInitializer
+  | LBRACK RBRACK
+  : LBRACK ArrayMemberInitializations RBRACK
+  ;
+
+ArrayMemberInitializations
+  | ArrayMemberInitialization
+  : ArrayMemberInitialization COMMA
+  : ArrayMemberInitialization COMMA ArrayMemberInitializations
+  ;
+
+ArrayMemberInitialization
+  | NonVoidInitializer
+  : AssignExpression COLON NonVoidInitializer
+  ;
+
+StructInitializer
+  | LBRACE RBRACE
+  : LBRACE StructMemberInitializers RBRACE
+  ;
+
+StructMemberInitializers
+  | StructMemberInitializer
+  : StructMemberInitializer COMMA
+  : StructMemberInitializer COMMA StructMemberInitializers
+  ;
+
+StructMemberInitializer
+  | NonVoidInitializer
+  : Identifier COLON NonVoidInitializer
+  ;
+
+AutoDeclaration
+  | StorageClasses AutoDeclarationX SEMICOLON
+  ;
+
+AutoDeclarationX
+  | Identifier EQ Initializer
+  : AutoDeclarationX COMMA Identifier EQ Initializer
+  ;
+
+VoidInitializer
+  | VOID
+  ;
+
+AttributeSpecifier
+  | Attribute COLON
+  : Attribute DeclarationBlock
+  ;
+
+Attribute
+  | LinkageAttribute
+  : AlignAttribute
+  : Pragma
+  : DEPRECATED
+  : ProtectionAttribute
+  : STATIC
+  : EXTERN
+  : FINAL
+  : SYNCHRONIZED
+  : OVERRIDE
+  : ABSTRACT
+  : CONST
+  : AUTO
+  : SCOPE
+  : __GSHARED
+  : SHARED
+  : IMMUTABLE
+  : INOUT
+  : ATdisable
+  ;
+
+DeclarationBlock
+  | DeclDef
+  : LBRACE RBRACE
+  : LBRACE DeclDefs RBRACE
+  ;
+
+LinkageAttribute
+  | EXTERN LPAREN LinkageType RPAREN 
+  ;
+
+LinkageType
+  | C
+  : CINCREMENT
+  : D
+  : Windows
+  : Pascal
+  : System
+  ;
+
+AlignAttribute
+  | ALIGN
+  : ALIGN LPAREN IntegerLiteral RPAREN 
+  ;
+
+ProtectionAttribute
+  | PRIVATE
+  : PACKAGE
+  : PROTECTED
+  : PUBLIC
+  : EXPORT
+  ;
+
+Pragma
+  | PRAGMA LPAREN Identifier RPAREN 
+  : PRAGMA LPAREN Identifier COMMA ArgumentList RPAREN 
+  ;
+
+Expression
+  | CommaExpression
+  ;
+
+CommaExpression
+  | AssignExpression
+  : AssignExpression COMMA CommaExpression
+  ;
+
+AssignExpression
+  | ConditionalExpression
+  : ConditionalExpression EQ AssignExpression
+  : ConditionalExpression PLUSEQ AssignExpression
+  : ConditionalExpression MINUSEQ AssignExpression
+  : ConditionalExpression MULTEQ AssignExpression
+  : ConditionalExpression DIVEQ AssignExpression
+  : ConditionalExpression MODEQ AssignExpression
+  : ConditionalExpression ANDEQ AssignExpression
+  : ConditionalExpression OREQ AssignExpression
+  : ConditionalExpression XOREQ AssignExpression
+  : ConditionalExpression COMPEQ AssignExpression
+  : ConditionalExpression LSHIFTEQ AssignExpression
+  : ConditionalExpression RSHIFTEQ AssignExpression
+  : ConditionalExpression URSHIFTEQ AssignExpression
+  : ConditionalExpression POWEQ AssignExpression
+  ;
+
+ConditionalExpression
+  | OrOrExpression
+  : OrOrExpression QUESTION Expression COLON ConditionalExpression
+  ;
+
+OrOrExpression
+  | AndAndExpression
+  : OrOrExpression OROR AndAndExpression
+  ;
+
+AndAndExpression
+  | OrExpression
+  : AndAndExpression ANDAND OrExpression
+  : CmpExpression
+  : AndAndExpression ANDAND CmpExpression
+  ;
+
+OrExpression
+  | XorExpression
+  : OrExpression OR XorExpression
+  ;
+
+XorExpression
+  | AndExpression
+  : XorExpression XOR AndExpression
+  ;
+
+AndExpression
+  | ShiftExpression
+  : AndExpression AND ShiftExpression
+  ;
+
+CmpExpression
+  | ShiftExpression
+  : EqualExpression
+  : IdentityExpression
+  : RelExpression
+  : InExpression
+  ;
+
+EqualExpression
+  | ShiftExpression EQEQ ShiftExpression
+  : ShiftExpression NOTEQ ShiftExpression
+  ;
+
+IdentityExpression
+  | ShiftExpression IS ShiftExpression
+  : ShiftExpression NOTis ShiftExpression
+  ;
+
+RelExpression
+  | ShiftExpression LT ShiftExpression
+  : ShiftExpression LTEQ ShiftExpression
+  : ShiftExpression GT ShiftExpression
+  : ShiftExpression GTEQ ShiftExpression
+  : ShiftExpression NOTSTRANGEEQ ShiftExpression
+  : ShiftExpression NOTSTRANGE ShiftExpression
+  : ShiftExpression STRANGE ShiftExpression
+  : ShiftExpression STRANGEEQ ShiftExpression
+  : ShiftExpression NOTGT ShiftExpression
+  : ShiftExpression NOTGTEQ ShiftExpression
+  : ShiftExpression NOTLT ShiftExpression
+  : ShiftExpression NOTLTEQ ShiftExpression
+  ;
+
+InExpression
+  | ShiftExpression IN ShiftExpression
+  : ShiftExpression NOTin ShiftExpression
+  ;
+
+AddExpression
+  | MulExpression
+  : AddExpression PLUS MulExpression
+  : AddExpression MINUS MulExpression
+  : CatExpression
+  ;
+
+CatExpression
+  | AddExpression COMP MulExpression
+  ;
+
+MulExpression
+  | UnaryExpression
+  : MulExpression MULT UnaryExpression
+  : MulExpression DIV UnaryExpression
+  : MulExpression MOD UnaryExpression
+  ;
+
+UnaryExpression
+  | AND UnaryExpression
+  : INCREMENT UnaryExpression
+  : DECREMENT UnaryExpression
+  : MULT UnaryExpression
+  : MINUS UnaryExpression
+  : PLUS UnaryExpression
+  : NOT UnaryExpression
+  : ComplementExpression
+  : LPAREN Type RPAREN DOT Identifier
+  : LPAREN Type RPAREN DOT TemplateInstance
+  : NewExpression
+  : DeleteExpression
+  : CastExpression
+  : PowExpression
+  ;
+
+ComplementExpression
+  | COMP UnaryExpression
+  ;
+
+NewExpression
+  | NEW Type LBRACK AssignExpression RBRACK
+  : NEW AllocatorArguments Type LBRACK AssignExpression RBRACK
+  : NEW Type LPAREN ArgumentList RPAREN 
+  : NEW AllocatorArguments Type LPAREN ArgumentList RPAREN 
+  : NEW Type
+  : NEW AllocatorArguments Type
+  : NewAnonClassExpression
+  ;
+
+AllocatorArguments
+  | LPAREN RPAREN 
+  : LPAREN ArgumentList RPAREN 
+  ;
+
+ArgumentList
+  | AssignExpression
+  : AssignExpression COMMA
+  : AssignExpression COMMA ArgumentList
+  ;
+
+DeleteExpression
+  | DELETE UnaryExpression
+  ;
+
+CastExpression
+  | CAST LPAREN Type RPAREN UnaryExpression
+  : CAST LPAREN CastQual RPAREN UnaryExpression
+  : CAST LPAREN RPAREN UnaryExpression
+  ;
+
+CastQual
+  | CONST
+  : CONST SHARED
+  : SHARED CONST
+  : INOUT
+  : INOUT SHARED
+  : SHARED INOUT
+  : IMMUTABLE
+  : SHARED
+  ;
+
+PowExpression
+  | PostfixExpression
+  : PostfixExpression POW UnaryExpression
+  ;
+
+PostfixExpression
+  | PrimaryExpression
+  : PostfixExpression DOT Identifier
+  : PostfixExpression DOT TemplateInstance
+  : PostfixExpression DOT NewExpression
+  : PostfixExpression INCREMENT
+  : PostfixExpression DECREMENT
+  : PostfixExpression LPAREN RPAREN 
+  : PostfixExpression LPAREN ArgumentList RPAREN 
+  : BasicType LPAREN RPAREN 
+  : TypeCtors BasicType LPAREN RPAREN 
+  : BasicType LPAREN ArgumentList RPAREN 
+  : TypeCtors BasicType LPAREN ArgumentList RPAREN 
+  : IndexExpression
+  : SliceExpression
+  ;
+
+IndexExpression
+  | PostfixExpression LBRACK ArgumentList RBRACK
+  ;
+
+SliceExpression
+  | PostfixExpression LBRACK RBRACK
+  : PostfixExpression LBRACK AssignExpression RANGE AssignExpression RBRACK
+  ;
+
+PrimaryExpression
+  | Identifier
+  : DOT Identifier
+  : TemplateInstance
+  : DOT TemplateInstance
+  : THIS
+  : SUPER
+  : NULL
+  : TRUE
+  : FALSE
+  : DOLLAR
+  : __FILE__
+  : __MODULE__
+  : __LINE__
+  : __FUNCTION__
+  : __PRETTY_FUNCTION__
+  : IntegerLiteral
+  : FloatLiteral
+  : CharacterLiteral
+  : StringLiterals
+  : ArrayLiteral
+  : AssocArrayLiteral
+  : Lambda
+  : FunctionLiteral
+  : AssertExpression
+  : MixinExpression
+  : ImportExpression
+  : BasicType DOT Identifier
+  : Typeof
+  : TypeidExpression
+  : IsExpression
+  : LPAREN Expression RPAREN 
+  : TraitsExpression
+  ;
+
+StringLiterals
+  | StringLiteral
+  : StringLiterals StringLiteral
+  ;
+
+ArrayLiteral
+  | LBRACK ArgumentList RBRACK
+  ;
+
+AssocArrayLiteral
+  | LBRACK KeyValuePairs RBRACK
+  ;
+
+KeyValuePairs
+  | KeyValuePair
+  : KeyValuePair COMMA KeyValuePairs
+  ;
+
+KeyValuePair
+  | KeyExpression COLON ValueExpression
+  ;
+
+KeyExpression
+  | AssignExpression
+  ;
+
+ValueExpression
+  | AssignExpression
+  ;
+
+Lambda
+  | Identifier EQGT AssignExpression
+  : ParameterAttributes EQGT AssignExpression
+  ;
+
+FunctionLiteral
+  | FUNCTION FunctionBody
+  : FUNCTION ParameterAttributes FunctionBody
+  : FUNCTION Type FunctionBody
+  : FUNCTION Type ParameterAttributes FunctionBody
+  : DELEGATE FunctionBody
+  : DELEGATE ParameterAttributes FunctionBody
+  : DELEGATE Type FunctionBody
+  : DELEGATE Type ParameterAttributes FunctionBody
+  : ParameterAttributes FunctionBody
+  : FunctionBody
+  ;
+
+ParameterAttributes
+  | Parameters
+  : Parameters FunctionAttributes
+  ;
+
+AssertExpression
+  | ASSERT LPAREN AssignExpression RPAREN 
+  : ASSERT LPAREN AssignExpression COMMA AssignExpression RPAREN 
+  ;
+
+MixinExpression
+  | MIXIN LPAREN AssignExpression RPAREN 
+  ;
+
+ImportExpression
+  | IMPORT LPAREN AssignExpression RPAREN 
+  ;
+
+TypeidExpression
+  | TYPEID LPAREN Type RPAREN 
+  : TYPEID LPAREN Expression RPAREN 
+  ;
+
+IsExpression
+  | IS LPAREN Type RPAREN 
+  : IS LPAREN Type COLON TypeSpecialization RPAREN 
+  : IS LPAREN Type EQEQ TypeSpecialization RPAREN 
+  : IS LPAREN Type COLON TypeSpecialization COMMA TemplateParameterList RPAREN 
+  : IS LPAREN Type EQEQ TypeSpecialization COMMA TemplateParameterList RPAREN 
+  : IS LPAREN Type Identifier RPAREN 
+  : IS LPAREN Type Identifier COLON TypeSpecialization RPAREN 
+  : IS LPAREN Type Identifier EQEQ TypeSpecialization RPAREN 
+  : IS LPAREN Type Identifier COLON TypeSpecialization COMMA TemplateParameterList RPAREN 
+  : IS LPAREN Type Identifier EQEQ TypeSpecialization COMMA TemplateParameterList RPAREN 
+  ;
+
+TypeSpecialization
+  | Type
+  : STRUCT
+  : UNION
+  : CLASS
+  : INTERFACE
+  : ENUM
+  : FUNCTION
+  : DELEGATE
+  : SUPER
+  : CONST
+  : IMMUTABLE
+  : INOUT
+  : SHARED
+  : RETURN
+  : __PARAMETERS
+  ;
+
+TraitsExpression
+  | __TRAITS LPAREN TraitsKeyword COMMA TraitsArguments RPAREN 
+  ;
+
+TraitsKeyword
+  | isAbstractClass
+  : isArithmetic
+  : isAssociativeArray
+  : isFinalClass
+  : isPOD
+  : isNested
+  : isFloating
+  : isIntegral
+  : isScalar
+  : isStaticArray
+  : isUnsigned
+  : isVirtualFunction
+  : isVirtualMethod
+  : isAbstractFunction
+  : isFinalFunction
+  : isStaticFunction
+  : isRef
+  : isOut
+  : isLazy
+  : hasMember
+  : identifier
+  : getAttributes
+  : getMember
+  : getOverloads
+  : getProtection
+  : getVirtualFunctions
+  : getVirtualMethods
+  : parent
+  : classInstanceSize
+  : allMembers
+  : derivedMembers
+  : isSame
+  : compiles
+  ;
+
+TraitsArguments
+  | TraitsArgument
+  : TraitsArgument COMMA TraitsArguments
+  ;
+
+TraitsArgument
+  | AssignExpression
+  : Type
+  ;
+
+Special Keywords
+  | __FILE__
+  : __MODULE__
+  : __LINE__
+  : __FUNCTION__
+  : __PRETTY_FUNCTION__
+  ;
+
+Statement
+  | SEMICOLON
+  : NonEmptyStatement
+  : ScopeBlockStatement
+  ;
+
+NoScopeNonEmptyStatement
+  | NonEmptyStatement
+  : BlockStatement
+  ;
+
+NoScopeStatement
+  | SEMICOLON
+  : NonEmptyStatement
+  : BlockStatement
+  ;
+
+NonEmptyOrScopeBlockStatement
+  | NonEmptyStatement
+  : ScopeBlockStatement
+  ;
+
+NonEmptyStatement
+  | NonEmptyStatementNoCaseNoDefault
+  : CaseStatement
+  : CaseRangeStatement
+  : DefaultStatement
+  ;
+
+NonEmptyStatementNoCaseNoDefault
+  | LabeledStatement
+  : ExpressionStatement
+  : DeclarationStatement
+  : IfStatement
+  : WhileStatement
+  : DoStatement
+  : ForStatement
+  : ForeachStatement
+  : SwitchStatement
+  : FinalSwitchStatement
+  : ContinueStatement
+  : BreakStatement
+  : ReturnStatement
+  : GotoStatement
+  : WithStatement
+  : SynchronizedStatement
+  : TryStatement
+  : ScopeGuardStatement
+  : ThrowStatement
+  : AsmStatement
+  : PragmaStatement
+  : MixinStatement
+  : ForeachRangeStatement
+  : ConditionalStatement
+  : StaticAssert
+  : TemplateMixin
+  : ImportDeclaration
+  ;
+
+ScopeStatement
+  | NonEmptyStatement
+  : BlockStatement
+  ;
+
+ScopeBlockStatement
+  | BlockStatement
+  ;
+
+LabeledStatement
+  | Identifier COLON NoScopeStatement
+  ;
+
+BlockStatement
+  | LBRACE RBRACE
+  : LBRACE StatementList RBRACE
+  ;
+
+StatementList
+  | Statement
+  : Statement StatementList
+  ;
+
+ExpressionStatement
+  | Expression SEMICOLON
+  ;
+
+DeclarationStatement
+  | Declaration
+  ;
+
+IfStatement
+  | IF LPAREN IfCondition RPAREN ThenStatement
+  : IF LPAREN IfCondition RPAREN ThenStatement ELSE ElseStatement
+  ;
+
+IfCondition
+  | Expression
+  : AUTO Identifier EQ Expression
+  : BasicType Declarator EQ Expression
+  ;
+
+ThenStatement
+  | ScopeStatement
+  ;
+
+ElseStatement
+  | ScopeStatement
+  ;
+
+WhileStatement
+  | WHILE LPAREN Expression RPAREN ScopeStatement
+  ;
+
+DoStatement
+  | DO ScopeStatement WHILE LPAREN Expression RPAREN SEMICOLON
+  ;
+
+ForStatement
+  | FOR LPAREN Initialize SEMICOLON RPAREN ScopeStatement
+  : FOR LPAREN Initialize SEMICOLON Increment RPAREN ScopeStatement
+  : FOR LPAREN Initialize Test SEMICOLON RPAREN ScopeStatement
+  : FOR LPAREN Initialize Test SEMICOLON Increment RPAREN ScopeStatement
+  ;
+
+Initialize
+  | SEMICOLON
+  : NoScopeNonEmptyStatement
+  ;
+
+Test
+  | Expression
+  ;
+
+Increment
+  | Expression
+  ;
+
+ForeachStatement
+  | Foreach LPAREN ForeachTypeList SEMICOLON Aggregate RPAREN NoScopeNonEmptyStatement
+  ;
+
+Foreach
+  | FOREACH
+  : FOREACH_REVERSE
+  ;
+
+ForeachTypeList
+  | ForeachType
+  : ForeachType COMMA ForeachTypeList
+  ;
+
+ForeachType
+  | BasicType Declarator
+  : REF BasicType Declarator
+  : Identifier
+  : REF Identifier
+  ;
+
+Aggregate
+  | Expression
+  ;
+
+ForeachRangeStatement
+  | Foreach LPAREN ForeachType SEMICOLON LwrExpression RANGE UprExpression RPAREN ScopeStatement
+  ;
+
+LwrExpression
+  | Expression
+  ;
+
+UprExpression
+  | Expression
+  ;
+
+SwitchStatement
+  | SWITCH LPAREN Expression RPAREN ScopeStatement
+  ;
+
+CaseStatement
+  | CASE ArgumentList COLON ScopeStatementList
+  ;
+
+CaseRangeStatement
+  | CASE FirstExp COLON RANGE CASE LastExp COLON ScopeStatementList
+  ;
+
+FirstExp
+  | AssignExpression
+  ;
+
+LastExp
+  | AssignExpression
+  ;
+
+DefaultStatement
+  | DEFAULT COLON ScopeStatementList
+  ;
+
+ScopeStatementList
+  | StatementListNoCaseNoDefault
+  ;
+
+StatementListNoCaseNoDefault
+  | StatementNoCaseNoDefault
+  : StatementNoCaseNoDefault StatementListNoCaseNoDefault
+  ;
+
+StatementNoCaseNoDefault
+  | SEMICOLON
+  : NonEmptyStatementNoCaseNoDefault
+  : ScopeBlockStatement
+  ;
+
+FinalSwitchStatement
+  | FINAL SWITCH LPAREN Expression RPAREN ScopeStatement
+  ;
+
+ContinueStatement
+  | CONTINUE SEMICOLON
+  : CONTINUE Identifier SEMICOLON
+  ;
+
+BreakStatement
+  | BREAK SEMICOLON
+  : BREAK Identifier SEMICOLON
+  ;
+
+ReturnStatement
+  | RETURN SEMICOLON
+  : RETURN Expression SEMICOLON
+  ;
+
+GotoStatement
+  | GOTO Identifier SEMICOLON
+  : GOTO DEFAULT SEMICOLON
+  : GOTO CASE SEMICOLON
+  : GOTO CASE Expression SEMICOLON
+  ;
+
+WithStatement
+  | WITH LPAREN Expression RPAREN ScopeStatement
+  : WITH LPAREN Symbol RPAREN ScopeStatement
+  : WITH LPAREN TemplateInstance RPAREN ScopeStatement
+  ;
+
+SynchronizedStatement
+  | SYNCHRONIZED ScopeStatement
+  : SYNCHRONIZED LPAREN Expression RPAREN ScopeStatement
+  ;
+
+TryStatement
+  | TRY ScopeStatement Catches
+  : TRY ScopeStatement Catches FinallyStatement
+  : TRY ScopeStatement FinallyStatement
+  ;
+
+Catches
+  | LastCatch
+  : Catch
+  : Catch Catches
+  ;
+
+LastCatch
+  | CATCH NoScopeNonEmptyStatement
+  ;
+
+Catch
+  | CATCH LPAREN CatchParameter RPAREN NoScopeNonEmptyStatement
+  ;
+
+CatchParameter
+  | BasicType Identifier
+  ;
+
+FinallyStatement
+  | FINALLY NoScopeNonEmptyStatement
+  ;
+
+ThrowStatement
+  | THROW Expression SEMICOLON
+  ;
+
+ScopeGuardStatement
+  | SCOPE LPAREN exit RPAREN NonEmptyOrScopeBlockStatement
+  : SCOPE LPAREN success RPAREN NonEmptyOrScopeBlockStatement
+  : SCOPE LPAREN failure RPAREN NonEmptyOrScopeBlockStatement
+  ;
+
+AsmStatement
+  | ASM LBRACE RBRACE
+  : ASM LBRACE AsmInstructionList RBRACE
+  ;
+
+AsmInstructionList
+  | AsmInstruction SEMICOLON
+  : AsmInstruction SEMICOLON AsmInstructionList
+  ;
+
+PragmaStatement
+  | Pragma NoScopeStatement
+  ;
+
+MixinStatement
+  | MIXIN LPAREN AssignExpression RPAREN SEMICOLON
+  ;
+
+AggregateDeclaration
+  | STRUCT Identifier StructBody
+  : UNION Identifier StructBody
+  : STRUCT Identifier SEMICOLON
+  : UNION Identifier SEMICOLON
+  : StructTemplateDeclaration
+  : UnionTemplateDeclaration
+  ;
+
+StructBody
+  | LBRACE RBRACE
+  : LBRACE StructBodyDeclarations RBRACE
+  ;
+
+StructBodyDeclarations
+  | StructBodyDeclaration
+  : StructBodyDeclaration StructBodyDeclarations
+  ;
+
+StructBodyDeclaration
+  | DeclDef
+  : StructAllocator
+  : StructDeallocator
+  : StructPostblit
+  : AliasThis
+  ;
+
+StructAllocator
+  | ClassAllocator
+  ;
+
+StructDeallocator
+  | ClassDeallocator
+  ;
+
+ClassDeclaration
+  | CLASS Identifier ClassBody
+  : CLASS Identifier BaseClassList ClassBody
+  : ClassTemplateDeclaration
+  ;
+
+BaseClassList
+  | COLON SuperClass
+  : COLON SuperClass COMMA Interfaces
+  : COLON Interfaces
+  ;
+
+SuperClass
+  | Identifier
+  ;
+
+Interfaces
+  | Interface
+  : Interface COMMA Interfaces
+  ;
+
+Interface
+  | Identifier
+  ;
+
+ClassBody
+  | LBRACE RBRACE
+  : LBRACE ClassBodyDeclarations RBRACE
+  ;
+
+ClassBodyDeclarations
+  | ClassBodyDeclaration
+  : ClassBodyDeclaration ClassBodyDeclarations
+  ;
+
+ClassBodyDeclaration
+  | DeclDef
+  : Invariant
+  : ClassAllocator
+  : ClassDeallocator
+  ;
+
+Constructor
+  | THIS Parameters FunctionBody
+  : TemplatedConstructor
+  ;
+
+Destructor
+  | COMP THIS LPAREN RPAREN FunctionBody
+  ;
+
+StaticConstructor
+  | STATIC THIS LPAREN RPAREN FunctionBody
+  ;
+
+StaticDestructor
+  | STATIC COMP THIS LPAREN RPAREN FunctionBody
+  ;
+
+SharedStaticConstructor
+  | SHARED STATIC THIS LPAREN RPAREN FunctionBody
+  ;
+
+SharedStaticDestructor
+  | SHARED STATIC COMP THIS LPAREN RPAREN FunctionBody
+  ;
+
+Invariant
+  | INVARIANT LPAREN RPAREN BlockStatement
+  ;
+
+ClassAllocator
+  | NEW Parameters FunctionBody
+  ;
+
+ClassDeallocator
+  | DELETE Parameters FunctionBody
+  ;
+
+AliasThis
+  | ALIAS Identifier thisSEMICOLON
+  ;
+
+NewAnonClassExpression
+  | NEW CLASS 
+  : NEW CLASS Interfaces
+  : NEW CLASS SuperClass 
+  : NEW CLASS SuperClass Interfaces
+  : NEW CLASS ClassArguments 
+  : NEW CLASS ClassArguments Interfaces
+  : NEW CLASS ClassArguments SuperClass 
+  : NEW CLASS ClassArguments SuperClass Interfaces
+  : NEW AllocatorArguments CLASS 
+  : NEW AllocatorArguments CLASS Interfaces
+  : NEW AllocatorArguments CLASS SuperClass 
+  : NEW AllocatorArguments CLASS SuperClass Interfaces
+  : NEW AllocatorArguments CLASS ClassArguments 
+  : NEW AllocatorArguments CLASS ClassArguments Interfaces
+  : NEW AllocatorArguments CLASS ClassArguments SuperClass 
+  : NEW AllocatorArguments CLASS ClassArguments SuperClass Interfaces
+  : ClassBody
+  ;
+
+ClassArguments
+  | LPAREN RPAREN 
+  : LPAREN ArgumentList RPAREN 
+  ;
+
+class Identifier  SuperClass Interfaces
+  | ClassBody
+  ;
+
+InterfaceDeclaration
+  | INTERFACE Identifier InterfaceBody
+  : INTERFACE Identifier BaseInterfaceList InterfaceBody
+  : InterfaceTemplateDeclaration
+  ;
+
+BaseInterfaceList
+  | COLON InterfaceClasses
+  ;
+
+InterfaceBody
+  | LBRACE RBRACE
+  : LBRACE DeclDefs RBRACE
+  ;
+
+EnumDeclaration
+  | ENUM EnumTag EnumBody
+  : ENUM EnumBody
+  : ENUM EnumTag COLON EnumBaseType EnumBody
+  : ENUM COLON EnumBaseType EnumBody
+  ;
+
+EnumTag
+  | Identifier
+  ;
+
+EnumBaseType
+  | Type
+  ;
+
+EnumBody
+  | EmptyEnumBody
+  : EnumMembersBody
+  ;
+
+EmptyEnumBody
+  | SEMICOLON
+  ;
+
+EnumMembersBody
+  | LBRACE EnumMembers RBRACE
+  ;
+
+EnumMembers
+  | EnumMember
+  : EnumMember COMMA
+  : EnumMember COMMA EnumMembers
+  ;
+
+EnumMember
+  | Identifier
+  : Identifier EQ AssignExpression
+  : Type EQ AssignExpression
+  ;
+
+FunctionBody
+  | BlockStatement
+  : BodyStatement
+  : InStatement BodyStatement
+  : OutStatement BodyStatement
+  : InStatement OutStatement BodyStatement
+  : OutStatement InStatement BodyStatement
+  ;
+
+InStatement
+  | IN BlockStatement
+  ;
+
+OutStatement
+  | OUT BlockStatement
+  : OUT LPAREN Identifier RPAREN BlockStatement
+  ;
+
+BodyStatement
+  | BODY BlockStatement
+  ;
+
+ConditionalDeclaration
+  | Condition CCDeclarationBlock
+  : Condition CCDeclarationBlock ELSE CCDeclarationBlock
+  : Condition COLON Declarations
+  ;
+
+CCDeclarationBlock
+  | Declaration
+  : LBRACE Declarations RBRACE
+  : LBRACE RBRACE
+  ;
+
+Declarations
+  | Declaration
+  : Declaration Declarations
+  ;
+
+ConditionalStatement
+  | Condition NoScopeNonEmptyStatement
+  : Condition NoScopeNonEmptyStatement ELSE NoScopeNonEmptyStatement
+  ;
+
+Condition
+  | VersionCondition
+  : DebugCondition
+  : StaticIfCondition
+  ;
+
+VersionCondition
+  | VERSION LPAREN IntegerLiteral RPAREN 
+  : VERSION LPAREN Identifier RPAREN 
+  : VERSION LPAREN UNITTEST RPAREN 
+  : VERSION LPAREN ASSERT RPAREN 
+  ;
+
+VersionSpecification
+  | VERSION EQ Identifier SEMICOLON
+  : VERSION EQ IntegerLiteral SEMICOLON
+  ;
+
+DebugCondition
+  | DEBUG
+  : DEBUG LPAREN IntegerLiteral RPAREN 
+  : DEBUG LPAREN Identifier RPAREN 
+  ;
+
+DebugSpecification
+  | DEBUG EQ Identifier SEMICOLON
+  : DEBUG EQ IntegerLiteral SEMICOLON
+  ;
+
+StaticIfCondition
+  | STATIC IF LPAREN AssignExpression RPAREN 
+  ;
+
+StaticAssert
+  | STATIC ASSERT LPAREN AssignExpression RPAREN SEMICOLON
+  : STATIC ASSERT LPAREN AssignExpression COMMA AssignExpression RPAREN SEMICOLON
+  ;
+
+TemplateDeclaration
+  | TEMPLATE TemplateIdentifier TemplateParameters 
+  : TEMPLATE TemplateIdentifier TemplateParameters Constraint
+  : LBRACE DeclDefs RBRACE
+  ;
+
+TemplateIdentifier
+  | Identifier
+  ;
+
+TemplateParameters
+  | LPAREN RPAREN 
+  : LPAREN TemplateParameterList RPAREN 
+  ;
+
+TemplateParameterList
+  | TemplateParameter
+  : TemplateParameter COMMA
+  : TemplateParameter COMMA TemplateParameterList
+  ;
+
+TemplateParameter
+  | TemplateTypeParameter
+  : TemplateValueParameter
+  : TemplateAliasParameter
+  : TemplateTupleParameter
+  : TemplateThisParameter
+  ;
+
+TemplateInstance
+  | TemplateIdentifier TemplateArguments
+  ;
+
+TemplateArguments
+  | NOT LPAREN RPAREN 
+  : NOT LPAREN TemplateArgumentList RPAREN 
+  : NOT TemplateSingleArgument
+  ;
+
+TemplateArgumentList
+  | TemplateArgument
+  : TemplateArgument COMMA
+  : TemplateArgument COMMA TemplateArgumentList
+  ;
+
+TemplateArgument
+  | Type
+  : AssignExpression
+  : Symbol
+  ;
+
+Symbol
+  | SymbolTail
+  : DOT SymbolTail
+  ;
+
+SymbolTail
+  | Identifier
+  : Identifier DOT SymbolTail
+  : TemplateInstance
+  : TemplateInstance DOT SymbolTail
+  ;
+
+TemplateSingleArgument
+  | Identifier
+  : BasicTypeX
+  : CharacterLiteral
+  : StringLiteral
+  : IntegerLiteral
+  : FloatLiteral
+  : TRUE
+  : FALSE
+  : NULL
+  : THIS
+  : __FILE__
+  : __MODULE__
+  : __LINE__
+  : __FUNCTION__
+  : __PRETTY_FUNCTION__
+  ;
+
+TemplateTypeParameter
+  | Identifier
+  : Identifier TemplateTypeParameterSpecialization
+  : Identifier TemplateTypeParameterDefault
+  : Identifier TemplateTypeParameterSpecialization TemplateTypeParameterDefault
+  ;
+
+TemplateTypeParameterSpecialization
+  | COLON Type
+  ;
+
+TemplateTypeParameterDefault
+  | EQ Type
+  ;
+
+TemplateThisParameter
+  | THIS TemplateTypeParameter
+  ;
+
+TemplateValueParameter
+  | BasicType Declarator
+  : BasicType Declarator TemplateValueParameterSpecialization
+  : BasicType Declarator TemplateValueParameterDefault
+  : BasicType Declarator TemplateValueParameterSpecialization TemplateValueParameterDefault
+  ;
+
+TemplateValueParameterSpecialization
+  | COLON ConditionalExpression
+  ;
+
+TemplateValueParameterDefault
+  | EQ __FILE__
+  : EQ __MODULE__
+  : EQ __LINE__
+  : EQ __FUNCTION__
+  : EQ __PRETTY_FUNCTION__
+  : EQ AssignExpression
+  ;
+
+TemplateAliasParameter
+  | ALIAS Identifier 
+  : ALIAS Identifier TemplateAliasParameterDefault
+  : ALIAS Identifier TemplateAliasParameterSpecialization 
+  : ALIAS Identifier TemplateAliasParameterSpecialization TemplateAliasParameterDefault
+  : ALIAS BasicType Declarator 
+  : ALIAS BasicType Declarator TemplateAliasParameterDefault
+  : ALIAS BasicType Declarator TemplateAliasParameterSpecialization 
+  : ALIAS BasicType Declarator TemplateAliasParameterSpecialization TemplateAliasParameterDefault
+  ;
+
+TemplateAliasParameterSpecialization
+  | COLON Type
+  : COLON ConditionalExpression
+  ;
+
+TemplateAliasParameterDefault
+  | EQ Type
+  : EQ ConditionalExpression
+  ;
+
+TemplateTupleParameter
+  | Identifier ELLIPSIS
+  ;
+
+TemplatedConstructor
+  | THIS TemplateParameters Parameters FunctionBody
+  : THIS TemplateParameters Parameters Constraint FunctionBody
+  ;
+
+ClassTemplateDeclaration
+  | CLASS Identifier LPAREN TemplateParameterList RPAREN ClassBody
+  : CLASS Identifier LPAREN TemplateParameterList RPAREN BaseClassList ClassBody
+  : CLASS Identifier LPAREN TemplateParameterList RPAREN Constraint ClassBody
+  : CLASS Identifier LPAREN TemplateParameterList RPAREN Constraint BaseClassList ClassBody
+  ;
+
+StructTemplateDeclaration
+  | STRUCT Identifier LPAREN TemplateParameterList RPAREN StructBody
+  : STRUCT Identifier LPAREN TemplateParameterList RPAREN Constraint StructBody
+  ;
+
+UnionTemplateDeclaration
+  | UNION Identifier LPAREN TemplateParameterList RPAREN StructBody
+  : UNION Identifier LPAREN TemplateParameterList RPAREN Constraint StructBody
+  ;
+
+InterfaceTemplateDeclaration
+  | INTERFACE Identifier LPAREN TemplateParameterList RPAREN InterfaceBody
+  : INTERFACE Identifier LPAREN TemplateParameterList RPAREN BaseInterfaceList InterfaceBody
+  : INTERFACE Identifier LPAREN TemplateParameterList RPAREN Constraint InterfaceBody
+  : INTERFACE Identifier LPAREN TemplateParameterList RPAREN Constraint BaseInterfaceList InterfaceBody
+  ;
+
+Constraint
+  | IF LPAREN ConstraintExpression RPAREN 
+  ;
+
+ConstraintExpression
+  | Expression
+  ;
+
+TemplateMixinDeclaration
+  | MIXIN TEMPLATE TemplateIdentifier TemplateParameters 
+  : LBRACE DeclDefs RBRACE
+  ;
+
+TemplateMixin
+  | MIXIN MixinTemplateName SEMICOLON
+  : MIXIN MixinTemplateName MixinIdentifier SEMICOLON
+  : MIXIN MixinTemplateName TemplateArguments SEMICOLON
+  : MIXIN MixinTemplateName TemplateArguments MixinIdentifier SEMICOLON
+  ;
+
+MixinTemplateName
+  | DOT QualifiedIdentifierList
+  : QualifiedIdentifierList
+  : Typeof DOT QualifiedIdentifierList
+  ;
+
+QualifiedIdentifierList
+  | Identifier
+  : Identifier DOT QualifiedIdentifierList
+  : TemplateInstance DOT QualifiedIdentifierList
+  ;
+
+MixinIdentifier
+  | Identifier
+  ;
+
+UnitTest
+  | UNITTEST FunctionBody
+  ;
+
+AsmInstruction
+  | Identifier COLON AsmInstruction
+  : ALIGN IntegerExpression
+  : even
+  : naked
+  : db Operands
+  : ds Operands
+  : di Operands
+  : dl Operands
+  : df Operands
+  : dd Operands
+  : de Operands
+  : Opcode
+  : Opcode Operands
+  ;
+
+Operands
+  | Operand
+  : Operand COMMA Operands
+  ;
+
+IntegerExpression
+  | IntegerLiteral
+  : Identifier
+  ;
+
+Register
+  | AL AH AX EAX
+  : BL BH BX EBX
+  : CL CH CX ECX
+  : DL DH DX EDX
+  : BP EBP
+  : SP ESP
+  : DI EDI
+  : SI ESI
+  : ES CS SS DS GS FS
+  : CR0 CR2 CR3 CR4
+  : DR0 DR1 DR2 DR3 DR6 DR7
+  : TR3 TR4 TR5 TR6 TR7
+  : ST
+  : ST LPAREN 0 RPAREN ST LPAREN 1 RPAREN ST LPAREN 2 RPAREN ST LPAREN 3 RPAREN ST LPAREN 4 RPAREN ST LPAREN 5 RPAREN ST LPAREN 6 RPAREN ST LPAREN 7 RPAREN 
+  : MM0 MM1 MM2 MM3 MM4 MM5 MM6 MM7
+  : XMM0 XMM1 XMM2 XMM3 XMM4 XMM5 XMM6 XMM7
+  ;
+
+Register64
+  | RAX RBX RCX RDX
+  : BPL RBP
+  : SPL RSP
+  : DIL RDI
+  : SIL RSI
+  : R8B R8W R8D R8
+  : R9B R9W R9D R9
+  : R10B R10W R10D R10
+  : R11B R11W R11D R11
+  : R12B R12W R12D R12
+  : R13B R13W R13D R13
+  : R14B R14W R14D R14
+  : R15B R15W R15D R15
+  : XMM8 XMM9 XMM10 XMM11 XMM12 XMM13 XMM14 XMM15
+  : YMM0 YMM1 YMM2 YMM3 YMM4 YMM5 YMM6 YMM7
+  : YMM8 YMM9 YMM10 YMM11 YMM12 YMM13 YMM14 YMM15
+  ;
+
+Operand
+  | AsmExp
+  ;
+
+AsmExp
+  | AsmLogOrExp
+  : AsmLogOrExp QUESTION AsmExp COLON AsmExp
+  ;
+
+AsmLogOrExp
+  | AsmLogAndExp
+  : AsmLogAndExp OROR AsmLogAndExp
+  ;
+
+AsmLogAndExp
+  | AsmOrExp
+  : AsmOrExp ANDAND AsmOrExp
+  ;
+
+AsmOrExp
+  | AsmXorExp
+  : AsmXorExp OR AsmXorExp
+  ;
+
+AsmXorExp
+  | AsmAndExp
+  : AsmAndExp XOR AsmAndExp
+  ;
+
+AsmAndExp
+  | AsmEqualExp
+  : AsmEqualExp AND AsmEqualExp
+  ;
+
+AsmEqualExp
+  | AsmRelExp
+  : AsmRelExp EQEQ AsmRelExp
+  : AsmRelExp NOTEQ AsmRelExp
+  ;
+
+AsmRelExp
+  | AsmShiftExp
+  : AsmShiftExp LT AsmShiftExp
+  : AsmShiftExp LTEQ AsmShiftExp
+  : AsmShiftExp GT AsmShiftExp
+  : AsmShiftExp GTEQ AsmShiftExp
+  ;
+
+AsmShiftExp
+  | AsmAddExp
+  : AsmAddExp LSHIFT AsmAddExp
+  : AsmAddExp RSHIFT AsmAddExp
+  : AsmAddExp URSHIFT AsmAddExp
+  ;
+
+AsmAddExp
+  | AsmMulExp
+  : AsmMulExp PLUS AsmMulExp
+  : AsmMulExp MINUS AsmMulExp
+  ;
+
+AsmMulExp
+  | AsmBrExp
+  : AsmBrExp MULT AsmBrExp
+  : AsmBrExp DIV AsmBrExp
+  : AsmBrExp MOD AsmBrExp
+  ;
+
+AsmBrExp
+  | AsmUnaExp
+  : AsmBrExp LBRACK AsmExp RBRACK
+  ;
+
+AsmUnaExp
+  | AsmTypePrefix AsmExp
+  : offsetof AsmExp
+  : seg AsmExp
+  : PLUS AsmUnaExp
+  : MINUS AsmUnaExp
+  : NOT AsmUnaExp
+  : COMP AsmUnaExp
+  : AsmPrimaryExp
+  ;
+
+AsmPrimaryExp
+  | IntegerLiteral
+  : FloatLiteral
+  : __LOCAL_SIZE
+  : DOLLAR
+  : Register
+  : Register64
+  : DotIdentifier
+  ;
+
+DotIdentifier
+  | Identifier
+  : Identifier DOT DotIdentifier
+  ;
+
+AsmTypePrefix
+  | near ptr
+  : far ptr
+  : BYTE ptr
+  : SHORT ptr
+  : INT ptr
+  : word ptr
+  : dword ptr
+  : qword ptr
+  : FLOAT ptr
+  : DOUBLE ptr
+  : REAL ptr
+  ;
+
